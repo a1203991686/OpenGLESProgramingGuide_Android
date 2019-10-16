@@ -38,7 +38,7 @@ class FirstOpenGLProjectActivity : AppCompatActivity() {
             glSurfaceView.setEGLContextClientVersion(2)
 
             // 配置Renderer
-            glSurfaceView.setRenderer(object : FirstOpenGLProjectRenderer())
+            glSurfaceView.setRenderer(FirstOpenGLProjectRenderer())
             rendererSet = true
         } else {
             Toast.makeText(this, "This device does not support OpenGL ES 2.0", Toast.LENGTH_SHORT)
@@ -47,7 +47,19 @@ class FirstOpenGLProjectActivity : AppCompatActivity() {
         }
 
         setContentView(glSurfaceView)
+    }
 
+    override fun onPause() {
+        super.onPause()
 
+        if (rendererSet)
+            glSurfaceView.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (rendererSet)
+            glSurfaceView.onResume()
     }
 }
