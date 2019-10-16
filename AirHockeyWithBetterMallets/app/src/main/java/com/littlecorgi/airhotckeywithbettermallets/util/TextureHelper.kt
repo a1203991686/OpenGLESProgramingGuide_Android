@@ -45,8 +45,9 @@ class TextureHelper {
 
             texImage2D(GL_TEXTURE_2D, 0, bitmap, 0)
 
-            bitmap.recycle()
             glGenerateMipmap(GL_TEXTURE_2D)
+
+            bitmap.recycle()
             glBindTexture(GL_TEXTURE_2D, 0)
             return textureObjectIds[0]
         }

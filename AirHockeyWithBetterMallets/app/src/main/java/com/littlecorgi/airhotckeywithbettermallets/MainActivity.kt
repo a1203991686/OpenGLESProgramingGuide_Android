@@ -4,9 +4,9 @@ import android.app.ActivityManager
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.retouch_activity_retouch)
         glSurfaceView = GLSurfaceView(this)
 
         // 检查系统是否支持OpenGL ES 2.0

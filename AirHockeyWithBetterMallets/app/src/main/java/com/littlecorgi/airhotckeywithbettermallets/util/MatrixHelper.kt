@@ -4,7 +4,7 @@ import kotlin.math.tan
 
 class MatrixHelper {
     companion object {
-        fun persectiveM(m: FloatArray, yFvInDegrees: Float, aspect: Float, n: Float, f: Float) {
+        fun perspectiveM(m: FloatArray, yFvInDegrees: Float, aspect: Float, n: Float, f: Float) {
             val angleInRadians = (yFvInDegrees * Math.PI / 180.0).toFloat()
             val a = (1.0 / tan(angleInRadians / 2.0)).toFloat()
 
@@ -22,6 +22,7 @@ class MatrixHelper {
             m[9] = 0f
             m[10] = -((f + n) / (f - n))
             m[11] = -1f
+
             m[12] = 0f
             m[13] = 0f
             m[14] = -((2f * f * n) / (f - n))

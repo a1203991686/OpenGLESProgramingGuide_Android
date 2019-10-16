@@ -5,6 +5,7 @@ import android.opengl.GLES20.*
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix.*
 import com.littlecorgi.airhotckeywithbettermallets.objects.Mallet
+import com.littlecorgi.airhotckeywithbettermallets.objects.Puck
 import com.littlecorgi.airhotckeywithbettermallets.objects.Table
 import com.littlecorgi.airhotckeywithbettermallets.program.ColorShaderProgram
 import com.littlecorgi.airhotckeywithbettermallets.program.TextureShaderProgram
@@ -193,8 +194,12 @@ class FirstOpenGLProjectRenderer(private val context: Context) : GLSurfaceView.R
 
     private val projectionMatrix = FloatArray(16)
     private val modelMatrix = FloatArray(16)
+    private val viewMatrix = FloatArray(16)
+    private val viewProjectionMatrix = FloatArray(16)
+    private val modelViewProjectionMatrix = FloatArray(16)
     private lateinit var table: Table
     private lateinit var mallet: Mallet
+    private lateinit var puck: Puck
     private lateinit var textureProgram: TextureShaderProgram
     private lateinit var colorProgram: ColorShaderProgram
     private var texture: Int = 0
@@ -202,22 +207,46 @@ class FirstOpenGLProjectRenderer(private val context: Context) : GLSurfaceView.R
     override fun onDrawFrame(gl: GL10?) {
         glClear(GL_COLOR_BUFFER_BIT)
 
+//        textureProgram.useProgram()
+//        textureProgram.setUniforms(projectionMatrix, texture)
+//        table.bindData(textureProgram)
+//        table.draw()
+//
+//        colorProgram.useProgram()
+//        colorProgram.setUniforms(projectionMatrix)
+//        mallet.bindData(colorProgram)
+//        mallet.draw()
+
+        multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+
+        positionTableInScene()
         textureProgram.useProgram()
-        textureProgram.setUniforms(projectionMatrix, texture)
+        textureProgram.setUniforms(modelViewProjectionMatrix, texture)
         table.bindData(textureProgram)
         table.draw()
 
+        positionObjectInScene(0F, mallet.height / 2F, -0.4F)
         colorProgram.useProgram()
-        colorProgram.setUniforms(projectionMatrix)
+        colorProgram.setUniforms(modelViewProjectionMatrix, 1F, 0F, 0F)
         mallet.bindData(colorProgram)
         mallet.draw()
+
+        positionObjectInScene(0F, mallet.height / 2F, 0.4F)
+        colorProgram.setUniforms(modelViewProjectionMatrix, 0F, 0F, 1F)
+        mallet.draw()
+
+        positionObjectInScene(0F, puck.height / 2F, 0F)
+        colorProgram.setUniforms(modelViewProjectionMatrix, 0.8F, 0.8F, 1F)
+        puck.bindData(colorProgram)
+        puck.draw()
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         glClearColor(0.0F, 0.0F, 0.0F, 0.0F)
 
         table = Table()
-        mallet = Mallet()
+        mallet = Mallet(0.08F, 0.15F, 32)
+        puck = Puck(0.06F, 0.02F, 32)
 
         textureProgram = TextureShaderProgram(context)
         colorProgram = ColorShaderProgram(context)
@@ -226,14 +255,29 @@ class FirstOpenGLProjectRenderer(private val context: Context) : GLSurfaceView.R
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+//        glViewport(0, 0, width, height)
+//
+//        MatrixHelper.persectiveM(projectionMatrix, 45f, width.toFloat() / height.toFloat(), 1f, 10f)
+//        setIdentityM(modelMatrix, 0)
+//        translateM(modelMatrix, 0, 0f, 0f, -3f)
+//        rotateM(modelMatrix, 0, -40F, 1F, 0F, 0F)
+//        val temp = FloatArray(16)
+//        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0)
+//        System.arraycopy(temp, 0, projectionMatrix, 0, temp.size)
         glViewport(0, 0, width, height)
+        MatrixHelper.perspectiveM(projectionMatrix, 45F, (width / height).toFloat(), 1F, 10F)
+        setLookAtM(viewMatrix, 0, 0F, 1.2F, 2.2F, 0F, 0F, 0F, 0F, 1F, 0F)
+    }
 
-        MatrixHelper.persectiveM(projectionMatrix, 45f, width.toFloat() / height.toFloat(), 1f, 10f)
+    private fun positionTableInScene() {
         setIdentityM(modelMatrix, 0)
-        translateM(modelMatrix, 0, 0f, 0f, -3f)
-        rotateM(modelMatrix, 0, -40F, 1F, 0F, 0F)
-        val temp = FloatArray(16)
-        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0)
-        System.arraycopy(temp, 0, projectionMatrix, 0, temp.size)
+        rotateM(modelMatrix, 0, -90F, 1F, 0F, 0F)
+        multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix, 0, modelMatrix, 0)
+    }
+
+    private fun positionObjectInScene(x: Float, y: Float, z: Float) {
+        setIdentityM(modelMatrix, 0)
+        translateM(modelMatrix, 0, x, y, z)
+        multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix, 0, modelMatrix, 0)
     }
 }
